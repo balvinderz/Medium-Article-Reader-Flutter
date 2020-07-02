@@ -19,7 +19,6 @@ class _MyAppState extends State<MyApp> {
   bool foundLink = false;
   String link ="";
   StreamSubscription _intentDataStreamSubscription;
-  List<SharedMediaFile> _sharedFiles;
   String _sharedText;
 
   WebViewController controller ;
@@ -54,23 +53,13 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    _intentDataStreamSubscription =
-        ReceiveSharingIntent.getTextStream().listen((String value) {
-          print("value is $value");
-          if(value!=null)
-          setState(() {
-            _sharedText = value;
-            findLink(_sharedText);
-          });
-        }, onError: (err) {
-          print("getLinkStream error: $err");
-        });
-    ReceiveSharingIntent.getInitialText().then((String value) {
-      print("value is $value");
+
+   ReceiveSharingIntent.getInitialText().then((String value) {
       if(value!=null)
 
       setState(() {
         _sharedText = value;
+
         findLink(_sharedText);
       });
     });
@@ -80,13 +69,18 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       foundLink =false;
     });
-    print(s);
-    //final res = await
-    Dio dio = Dio();
-   final res = await  dio.get(s);
+
     final regExpression = r'https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)';
     final  exp = RegExp(regExpression);
-   RegExpMatch match = exp.firstMatch(res.data);
+    RegExpMatch match = exp.firstMatch(s);
+    s = match.group(0);
+    print(s);
+
+    //final res = await
+    Dio dio = Dio();
+
+    final res = await  dio.get(s);
+    match = exp.firstMatch(res.data);
       setState(() {
         link = match.group(0);
         foundLink  = true;
